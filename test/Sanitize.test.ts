@@ -31,6 +31,11 @@ describe("sanitizeProgress", () => {
     assert.strictEqual(out.aura, null);
   });
 
+  it("keeps known world ids and drops the rest", () => {
+    const out = sanitizeProgress({ worlds: ["lobby", "candy", "candy", "moon", 3] })!;
+    assert.deepStrictEqual(out.worlds, ["lobby", "candy"]);
+  });
+
   it("ignores unknown equipped and aura ids", () => {
     const out = sanitizeProgress({ equipped: "laser", aura: "../etc" })!;
     assert.ok(!("equipped" in out));

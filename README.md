@@ -35,11 +35,11 @@ extra players get a new room. `userId` is the Bloxity id; ids starting `guest-` 
 | `leaderboard` | `{ soda, rebirths }`, rows `{ id, name, value }`, top 8 (#1 row also carries `avatar`) |
 
 Persisted keys (`src/sanitize.ts`): `soda wins level xp xpNext rebirths equipped owned passes record
-sodaBoostUntil auras aura dailyDay dailyClaimedAt`. Room state (`WorldState.players`) syncs pose,
+sodaBoostUntil auras aura worlds dailyDay dailyClaimedAt`. Room state (`WorldState.players`) syncs pose,
 equipped soda, aura, avatar, name and the leaderboard stats (`soda rebirths`).
 
 The game is client-authoritative: the server only enforces shape and bounds on saves. The id lists
-and caps in `src/constants.ts` (`SODA_IDS`, `AURA_IDS`, `PASS_IDS`, `SPAWN`, `WORLD_BOUNDS`) must be
+and caps in `src/constants.ts` (`SODA_IDS`, `AURA_IDS`, `PASS_IDS`, `WORLD_IDS`, `SPAWN`, `WORLD_BOUNDS`) must be
 kept in step with the client's `src/config.js` by hand.
 
 ## Deploy

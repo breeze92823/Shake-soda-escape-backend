@@ -5,9 +5,9 @@ export const ROOM_MAX_CLIENTS = 50;
 export const SPAWN = { x: 0, y: 0.3, z: 0 };
 
 // Walkable bounds (client WORLD_BOUNDS = the lobby ARENA, x -26..26, z -36..22), with a little slack
-// and headroom for the Soda Jump launch (client LAUNCH.maxHeight = 60 m): a forged pose cannot put
+// and headroom for the Soda Jump launch (client LAUNCH.maxHeight = 700 m): a forged pose cannot put
 // a player outside the world for everyone else to see.
-export const WORLD_BOUNDS = { minX: -28, maxX: 28, minZ: -38, maxZ: 24, minY: -40, maxY: 200 };
+export const WORLD_BOUNDS = { minX: -28, maxX: 28, minZ: -38, maxZ: 24, minY: -40, maxY: 800 };
 
 // Longest accepted strings.
 export const NAME_MAX = 64;
@@ -37,10 +37,15 @@ export const RECORD_MAX = 1_000_000; // best launch altitude in studs (client SP
 // Client config.js ids: SODA_ITEMS (front + back) + VOID_SODA, AURAS and BOOST_PASSES.
 export const SODA_IDS: readonly string[] = [
   "cola", "orange", "lemon", "lime", "ufo", "cherry", "slush", "strawberry", "cream", "galaxy", "rainbow", "trophy", "void",
+  // Client WORLD_SODAS: three per themed world.
+  "candy-1", "candy-2", "candy-3", "neon-1", "neon-2", "neon-3", "glacier-1", "glacier-2", "glacier-3",
+  "volcano-1", "volcano-2", "volcano-3", "reef-1", "reef-2", "reef-3",
 ];
 export const DEFAULT_SODA = "cola";
 export const AURA_IDS: readonly string[] = ["diamond", "emerald", "ruby", "rainbow", "golden", "void", "fire", "galaxy"];
 export const PASS_IDS: readonly string[] = ["soda", "wins"];
+// Client config.js WORLDS: the lobby plus the worlds behind each Summit (unlocked ones are saved).
+export const WORLD_IDS: readonly string[] = ["lobby", "candy", "neon", "glacier", "volcano", "reef"];
 
 // Daily rewards (client config.js DAILY): a 7-day cycle. `dailyClaimedAt` is an epoch-ms stamp that can
 // never be in the future (beyond clock slack); the x2 Soda boost (client state.sodaBoostUntil) expires at an

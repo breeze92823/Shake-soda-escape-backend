@@ -1,5 +1,5 @@
 import {
-  CURRENCY_MAX, REBIRTH_MAX, LEVEL_MAX, RECORD_MAX, SODA_IDS, AURA_IDS, PASS_IDS,
+  CURRENCY_MAX, REBIRTH_MAX, LEVEL_MAX, RECORD_MAX, SODA_IDS, AURA_IDS, PASS_IDS, WORLD_IDS,
   DAILY_DAY_MAX, BOOST_MAX_AHEAD_MS, CLOCK_SLACK_MS,
 } from "./constants.js";
 import type { PlayerDoc } from "./db.js";
@@ -40,6 +40,7 @@ export function sanitizeProgress(raw: unknown): Partial<PlayerDoc> | null {
   if (raw.owned !== undefined) out.owned = sanitizeIds(raw.owned, SODA_IDS);
   if (raw.passes !== undefined) out.passes = sanitizeIds(raw.passes, PASS_IDS);
   if (raw.auras !== undefined) out.auras = sanitizeIds(raw.auras, AURA_IDS);
+  if (raw.worlds !== undefined) out.worlds = sanitizeIds(raw.worlds, WORLD_IDS);
   if (raw.aura === null) out.aura = null;
   else if (typeof raw.aura === "string" && AURA_IDS.includes(raw.aura)) out.aura = raw.aura;
   if (finite(raw.sodaBoostUntil)) out.sodaBoostUntil = clampInt(raw.sodaBoostUntil, Date.now() + BOOST_MAX_AHEAD_MS);

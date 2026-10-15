@@ -100,6 +100,14 @@ describe("WorldRoom", () => {
     assert.strictEqual(s.grounded, false);
     assert.strictEqual(s.pose, "shake");
 
+    // A launch can climb hundreds of metres; a parked player (another world) sits under the floor.
+    c1.send("pose", { y: 650 });
+    await room.waitForNextPatch();
+    assert.strictEqual(c2.state.players.get(c1.sessionId)!.y, 650);
+    c1.send("pose", { y: -39 });
+    await room.waitForNextPatch();
+    assert.strictEqual(c2.state.players.get(c1.sessionId)!.y, -39);
+
     // NaN is ignored, null clears the pose, out-of-world positions are clamped.
     c1.send("pose", { x: NaN, z: 99999, pose: null });
     await room.waitForNextPatch();
@@ -172,7 +180,7 @@ describe("WorldRoom", () => {
 
     c.send("saveProgress", {
       soda: 1200, wins: 330, level: 4, rebirths: 1,
-      owned: ["cola", "orange"], equipped: "orange", passes: ["soda"], auras: ["diamond"], aura: "diamond",
+      owned: ["cola", "orange"], equipped: "orange", passes: ["soda"], auras: ["diamond"], aura: "diamond", worlds: ["lobby", "candy"],
     });
     await until(() => fake.docs.has("u1"));
     const doc = fake.docs.get("u1")!;
@@ -181,6 +189,7 @@ describe("WorldRoom", () => {
     assert.strictEqual(doc.username, "Shaker");
     assert.deepStrictEqual(doc.owned, ["cola", "orange"]);
     assert.strictEqual(doc.aura, "diamond");
+    assert.deepStrictEqual(doc.worlds, ["lobby", "candy"]);
     const live = room.state.players.get(c.sessionId)!;
     assert.strictEqual(live.rebirths, 1);
     assert.strictEqual(live.soda, 1200);

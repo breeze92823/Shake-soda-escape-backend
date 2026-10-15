@@ -24,6 +24,7 @@ export interface PlayerDoc {
   sodaBoostUntil?: number; // epoch ms the timed x2 Soda boost ends
   auras?: string[]; // auras bought
   aura?: string | null; // aura equipped
+  worlds?: string[]; // worlds unlocked (client WORLDS ids)
   dailyDay?: number; // next day (0-6) of the 7-day daily reward cycle
   dailyClaimedAt?: number; // epoch ms of the last claim (0 = never)
   version: number;
