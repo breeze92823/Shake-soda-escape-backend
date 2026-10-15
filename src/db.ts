@@ -27,6 +27,10 @@ export interface PlayerDoc {
   worlds?: string[]; // worlds unlocked (client WORLDS ids)
   dailyDay?: number; // next day (0-6) of the 7-day daily reward cycle
   dailyClaimedAt?: number; // epoch ms of the last claim (0 = never)
+  // Onboarding progress (constants.ts TUTORIAL_DONE_STEP = finished). Only ever moves forward ($max in
+  // WorldRoom.ts saveProgress). A doc without the field predates the tutorial and reads as finished
+  // (sanitize.ts resolveTutorialStep), so existing players never see it.
+  tutorialStep?: number;
   version: number;
   updatedAt: Date;
 }

@@ -3,6 +3,7 @@ import { WorldState, PlayerState } from "./schema/WorldState.js";
 import {
   AURA_IDS,
   AVATAR_MAX_LEN,
+  BELT_COUNT,
   GUEST_ID_PREFIX,
   LEADERBOARD_QUERY_LIMIT,
   LEADERBOARD_REFRESH_MS,
@@ -15,7 +16,7 @@ import {
   WORLD_BOUNDS,
 } from "../constants.js";
 import { getPlayers, type PlayerDoc } from "../db.js";
-import { sanitizeProgress } from "../sanitize.js";
+import { sanitizeProgress, resolveTutorialStep } from "../sanitize.js";
 
 const finite = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n);
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
@@ -83,6 +84,7 @@ export class WorldRoom extends Room<{ state: WorldState }> {
       if (finite(msg?.yaw)) p.yaw = msg.yaw;
       if (finite(msg?.speed01)) p.speed01 = clamp(msg.speed01, 0, 1);
       if (typeof msg?.grounded === "boolean") p.grounded = msg.grounded;
+      if (Number.isInteger(msg?.belt)) p.belt = msg.belt >= 0 && msg.belt < BELT_COUNT ? msg.belt : -1;
       if (msg?.pose === null) p.pose = "";
       else if (typeof msg?.pose === "string" && msg.pose.length <= POSE_MAX) p.pose = msg.pose;
     },
@@ -118,12 +120,16 @@ export class WorldRoom extends Room<{ state: WorldState }> {
       if (!userId) return;
       const players = getPlayers();
       if (!players) return; // Mongo unset/unreachable -- degrade silently
+      // The tutorial step only ever moves forward ($max), so a stale or replayed save can never
+      // bring a finished tutorial back.
+      const { tutorialStep, ...rest } = patch;
       try {
         await players.updateOne(
           { _id: userId },
           {
             // Display name comes from this connection's own PlayerState, not `msg`.
-            $set: { ...patch, username: p.username || "Player", ...(p.avatar ? { avatar: p.avatar } : {}), updatedAt: new Date() },
+            $set: { ...rest, username: p.username || "Player", ...(p.avatar ? { avatar: p.avatar } : {}), updatedAt: new Date() },
+            ...(tutorialStep !== undefined && { $max: { tutorialStep } }),
             $setOnInsert: { version: 1 },
           },
           { upsert: true },
@@ -169,7 +175,8 @@ export class WorldRoom extends Room<{ state: WorldState }> {
     const players = getPlayers();
     if (!userId || !players || !p.avatar) return;
     players
-      .updateOne({ _id: userId }, { $set: { avatar: p.avatar, username: p.username || "Player", updatedAt: new Date() }, $setOnInsert: { version: 1 } }, { upsert: true })
+      .updateOne({ _id: userId }, { $set: { avatar: p.avatar, username: p.username || "Player", updatedAt: new Date() }, $setOnInsert: { version: 1, tutorialStep: 0 } }, { upsert: true })
+      // A doc born here belongs to a brand-new account: it starts the tutorial at step 0.
       .catch((err) => console.warn("[WorldRoom] avatar save failed", err));
   }
 
@@ -264,7 +271,7 @@ export class WorldRoom extends Room<{ state: WorldState }> {
       client.send("noProgress", { serverTime: Date.now() });
       return;
     }
-    const live = sanitizeProgress(doc) ?? {};
+    const live = { ...(sanitizeProgress(doc) ?? {}), tutorialStep: resolveTutorialStep(doc) };
     this.applyLive(p, live);
     // serverTime lets the client judge daily-login days / boost expiry by the server clock.
     client.send("progress", { ...live, serverTime: Date.now() });
