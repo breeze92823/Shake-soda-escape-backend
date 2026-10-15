@@ -12,6 +12,8 @@ export const WORLD_BOUNDS = { minX: -28, maxX: 28, minZ: -38, maxZ: 24, minY: -4
 // Longest accepted strings.
 export const NAME_MAX = 64;
 export const POSE_MAX = 32;
+// Treadmills per shop (client config.js SHOP); a pose `belt` outside 0..BELT_COUNT-1 means none.
+export const BELT_COUNT = 6;
 // Bloxity avatar JSON, relayed as-is. Kept under the 4 KB cap of the join request's options.
 export const AVATAR_MAX_LEN = 3000;
 
@@ -53,6 +55,9 @@ export const WORLD_IDS: readonly string[] = ["lobby", "candy", "neon", "glacier"
 export const DAILY_DAY_MAX = 6; // the client stores the NEXT day to claim, 0..6
 export const BOOST_MAX_AHEAD_MS = 24 * 60 * 60 * 1000;
 export const CLOCK_SLACK_MS = 10 * 60 * 1000;
+
+// Client src/tutorial.js: the onboarding runs steps 0..TUTORIAL_DONE_STEP (4 = finished). Must equal config.js TUTORIAL.steps.
+export const TUTORIAL_DONE_STEP = 4;
 
 // The client's per-browser fallback id for players who are not signed in to Bloxity.
 // Guests are never persisted.

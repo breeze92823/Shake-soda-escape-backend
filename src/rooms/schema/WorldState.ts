@@ -15,6 +15,7 @@ export const PlayerState = schema(
     speed01: t.float64().default(0), // 0..1 gait factor -- purely cosmetic
     grounded: t.boolean().default(true),
     pose: t.string().default(""), // client animation name ("" = none)
+    belt: t.int8().default(-1), // treadmill index the player is running on (-1 = none)
     // Equipped soda item id (client config.js SODA_ITEMS / VOID_SODA); drawn in the player's hand.
     equipped: t.string().default("cola"),
     // Equipped aura id (client config.js AURAS), "" = none.

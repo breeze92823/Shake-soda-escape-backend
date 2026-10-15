@@ -1,6 +1,6 @@
 import {
   CURRENCY_MAX, REBIRTH_MAX, LEVEL_MAX, RECORD_MAX, SODA_IDS, AURA_IDS, PASS_IDS, WORLD_IDS,
-  DAILY_DAY_MAX, BOOST_MAX_AHEAD_MS, CLOCK_SLACK_MS,
+  DAILY_DAY_MAX, BOOST_MAX_AHEAD_MS, CLOCK_SLACK_MS, TUTORIAL_DONE_STEP,
 } from "./constants.js";
 import type { PlayerDoc } from "./db.js";
 
@@ -46,5 +46,13 @@ export function sanitizeProgress(raw: unknown): Partial<PlayerDoc> | null {
   if (finite(raw.sodaBoostUntil)) out.sodaBoostUntil = clampInt(raw.sodaBoostUntil, Date.now() + BOOST_MAX_AHEAD_MS);
   if (finite(raw.dailyDay)) out.dailyDay = clampInt(raw.dailyDay, DAILY_DAY_MAX);
   if (finite(raw.dailyClaimedAt)) out.dailyClaimedAt = clampInt(raw.dailyClaimedAt, Date.now() + CLOCK_SLACK_MS);
+  if (finite(raw.tutorialStep)) out.tutorialStep = clampInt(raw.tutorialStep, TUTORIAL_DONE_STEP);
   return out;
+}
+
+// What loadProgress sends down as tutorialStep: a doc that predates the tutorial belongs to a player who
+// was never shown it, so it reads as finished. New accounts get a doc with an explicit step (WorldRoom.ts
+// persistAvatar) or no doc at all (noProgress -> client starts at 0).
+export function resolveTutorialStep(doc: Partial<PlayerDoc>): number {
+  return finite(doc.tutorialStep) ? clampInt(doc.tutorialStep, TUTORIAL_DONE_STEP) : TUTORIAL_DONE_STEP;
 }
